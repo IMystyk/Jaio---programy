@@ -1,17 +1,18 @@
 #  This program in the future will help you pass jajo exam
-#  Now it does nothing
-#  Literally
 import Chomsky
 
 def print_production(productionRules):
     # Prints production rules
     for x in productionRules.keys():
         print(x, end=' -> ')
-        for y in productionRules[x]:
-            if y != productionRules[x][-1]:
-                print(y, end=' | ')
-            else:
-                print(y)
+        if type(productionRules[x]) is tuple:
+            for y in productionRules[x]:
+                if y != productionRules[x][-1]:
+                    print(y, end=' | ')
+                else:
+                    print(y)
+        else:
+            print(productionRules[x])
 def print_grammar(terminals, nonTerminals):
     # Prints given grammar
     print("G = <{", end='')
@@ -28,11 +29,30 @@ def print_grammar(terminals, nonTerminals):
         else:
             print(x, '}, P,', nonTerminals[0], ' >')
 
-def readFile():
+def read_from_file():
     # Reads production rules from a file
-    with open("source.txt", 'r') as read:
-        # TO DO
-        pass
+    terminals = []
+    nonTerminals = []
+    productionRules = {}
+    rules = []
+    file = open("source.txt", 'r')
+    for line in file:
+        data = line.split()
+        data.remove('->')
+        try:
+            while True:
+                data.remove('|')
+        except ValueError:
+            pass
+        nonTerminals.append(data[0])
+        rules.append(data.copy())
+        data.clear()
+    for x in rules:
+        for p in x:
+            if p in posTerminals and p not in terminals:
+                terminals.append(p)
+    productionRules = Chomsky.to_dic(rules)
+    return (terminals, nonTerminals, productionRules)
 
 # to check if given symbol can be terminal
 posTerminals = "0123456789^abcdefghijklmnopqrstuvwxyz"
@@ -40,17 +60,20 @@ posTerminals = "0123456789^abcdefghijklmnopqrstuvwxyz"
 if __name__ == "__main__":
 
     # Test values
-    # terminals = ['x', 'y', 'z']
-    # nonTerminals = ['S', 'X', 'Y', 'Z']
-    # productionRules = {'S': ('SY', 'Xy', 'xZ'), 'X': ('Xx', 'z'), 'Y': ('Zy', 'Yy'), 'Z': ('y', 'Zx', 'z')}
-    terminals = ['x', 'y']
-    nonTerminals = ['S', 'A', 'B', 'C', 'D']
-    productionRules = {'S': ('x', 'AD', 'C', 'BD'), 'C': ('y'), 'A': ('x'), 'D': ('xD')}
+    terminals = ['x', 'y', 'z']
+    nonTerminals = ['S', 'X', 'Y', 'Z']
+    productionRules = {'S': ('SY', 'Xy', 'xZ'), 'X': ('Xx', 'z'), 'Y': ('Zy', 'Yy'), 'Z': ('y', 'Zx', 'z')}
+    # terminals = ['x', 'y']
+    # nonTerminals = ['S', 'A', 'B', 'C', 'D']
+    # productionRules = {'S': ('x', 'AD', 'C', 'BD'), 'C': ('y'), 'A': ('x'), 'D': ('xD')}
 
+    #terminals, nonTerminals, productionRules = read_from_file()
 
     #rules = Chomsky.to_list(productionRules)
+    #print(rules)
+    #pr = Chomsky.to_dic(rules)
+    #print(pr)
     #Chomsky.remove_useless(nonTerminals, terminals, rules)
-
     print_production(productionRules)
     print('------Chomsky------')
     t, n, pr = Chomsky.chomsky(nonTerminals, terminals, productionRules)

@@ -18,19 +18,21 @@ def to_list(productionRules):
 
 def to_dic(rules):
     # Creates dictionary from a given list of production rules
-    # TO_DO
-    pass
+    result = {}
+    for rule in rules:
+        result[rule[0]] = tuple(rule[1:])
+    return result
 
 def find_producer(symbol, rules):
     # Finds non-terminal symbol that produces given symbol
-    # If no such production is found returns -1
+    # If no such production is found returns 0
     for x in rules:
         if len(x) == 2:
             if x[1] == symbol:
                 return x[0]
     return 0
 
-def remove_useless(nonTerminals, terminals, rules):
+def remove_useless(nonTerminals, terminals, rules, pr=True):
     # Checks if any production rules are useless and deletes them (and non-terminal symbols) if any are found
     tmp = rules.copy()
     while True:
@@ -48,6 +50,15 @@ def remove_useless(nonTerminals, terminals, rules):
             if not produced:
                 for rule in rules:
                     if rule[0] == nT:
+                        if pr:
+                            print("Usuwamy: ", end='')
+                            for product in rule:
+                                if product == rule[0]:
+                                    print(product, end=' -> ')
+                                elif product != rule[-1]:
+                                    print(product, end=' | ')
+                                else:
+                                    print(product)
                         rules.remove(rule)
                         nonTerminals.remove(nT)
             produced = 0
@@ -57,10 +68,23 @@ def remove_useless(nonTerminals, terminals, rules):
             if try_escape(rule[0], terminals, rules, prevUsed.copy()):
                 continue
             else:
+                if pr:
+                    print("Usuwamy: ", end='')
+                    for product in rule:
+                        if product == rule[0]:
+                            print(product, end=' -> ')
+                        elif product != rule[-1]:
+                            print(product, end=' | ')
+                        else:
+                            print(product)
                 rules.remove(rule)
                 for x in rules:
                     for p in x:
                         if rule[0] in p:
+                            if pr:
+                                print("Usuwamy: ", end='')
+                                print(x[0], end=' -> ')
+                                print(p)
                             x.remove(p)
                 nonTerminals.remove(rule[0])
                 prevUsed.remove(rule[0])
@@ -69,6 +93,8 @@ def remove_useless(nonTerminals, terminals, rules):
         else:
             prevUsed.clear()
             tmp = rules.copy()
+    if pr:
+        print()
 
 
 def try_escape(nonTerminal, terminals, rules, prevUsed):
@@ -105,7 +131,7 @@ def try_escape(nonTerminal, terminals, rules, prevUsed):
 
 
 
-def chomsky(nonTerminals, terminals, productionRules):
+def chomsky(nonTerminals, terminals, productionRules, pr=True):
     # Transforms grammar with given production rules to Chomsky hierarchy
     availableNonTerminals = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     # Check which non-terminal symbols are really available
@@ -113,17 +139,14 @@ def chomsky(nonTerminals, terminals, productionRules):
         availableNonTerminals = availableNonTerminals.replace(x, '')
     # Create list of production Rules
     rules = to_list(productionRules)
-    # TO DO check_useless is not done yet, might cause troubles if called
     remove_useless(nonTerminals, terminals, rules)
     ruleCounter = 0
     productCounter = 0
     found = 0
-    #print(rules)
     while True:
         x = rules[ruleCounter]
         while True:
             p = x[productCounter]
-            # TO DO there is a problem with a counter, have to do sth about that
             if not productCounter:
                 productCounter += 1
                 if productCounter == len(x):
@@ -137,6 +160,12 @@ def chomsky(nonTerminals, terminals, productionRules):
                     continue
                 else:
                     if find_producer('^', rules):
+                        if pr:
+                            print(rules[ruleCounter][0], end=' -> ')
+                            print(rules[ruleCounter][productCounter], end=' ')
+                            print("Zastepujemy: ", end='')
+                            print(rules[ruleCounter][0], end=' -> ')
+                            print(p + find_producer('^', rules))
                         rules[ruleCounter][productCounter] = p + find_producer('^', rules)
                     else:
                         nT = availableNonTerminals[0]
@@ -144,6 +173,12 @@ def chomsky(nonTerminals, terminals, productionRules):
                         rules.append([nT, '^'])
                         nonTerminals.append(nT)
                         terminals.append('^')
+                        if pr:
+                            print(rules[ruleCounter][0], end=' -> ')
+                            print(rules[ruleCounter][productCounter], end=' ')
+                            print("Zastepujemy: ", end='')
+                            print(rules[ruleCounter][0], end=' -> ')
+                            print(p + nT, ", gdzie:", nT, " -> '^'")
                         rules[ruleCounter][productCounter] = p + nT
             elif len(p) == 2:
                 if p[0] in nonTerminals and p[1] in nonTerminals:
@@ -154,32 +189,74 @@ def chomsky(nonTerminals, terminals, productionRules):
                 else:
                     if p[0] in terminals:
                         if find_producer(p[0], rules):
+                            if pr:
+                                print(rules[ruleCounter][0], end=' -> ')
+                                print(rules[ruleCounter][productCounter], end=' ')
+                                print("Zastepujemy: ", end='')
+                                print(rules[ruleCounter][0], end=' -> ')
+                                print(rules[ruleCounter][productCounter].replace(p[0], find_producer(p[0], rules)), end =' ')
+                                print(", gdzie:", find_producer(p[0], rules), " -> ", p[0])
                             rules[ruleCounter][productCounter] = rules[ruleCounter][productCounter].replace(p[0], find_producer(p[0], rules))
                         else:
                             nT = availableNonTerminals[0]
                             availableNonTerminals = availableNonTerminals.replace(nT, '')
                             rules.append([nT, p[0]])
                             nonTerminals.append(nT)
+                            if pr:
+                                print(rules[ruleCounter][0], end=' -> ')
+                                print(rules[ruleCounter][productCounter], end=' ')
+                                print("Zastepujemy: ", end='')
+                                print(rules[ruleCounter][0], end=' -> ')
+                                print(rules[ruleCounter][productCounter].replace(p[0], find_producer(p[0], rules)), end=' ')
+                                print(", gdzie: ", nT, " -> ", p[0])
                             rules[ruleCounter][productCounter] = rules[ruleCounter][productCounter].replace(p[0], nT)
                     if p[1] in terminals:
                         if find_producer(p[1], rules):
+                            if pr:
+                                print(rules[ruleCounter][0], end=' -> ')
+                                print(rules[ruleCounter][productCounter], end=' ')
+                                print("Zastepujemy: ", end='')
+                                print(rules[ruleCounter][0], end=' -> ')
+                                print(rules[ruleCounter][productCounter].replace(p[1], find_producer(p[1], rules)), end=' ')
+                                print(", gdzie:", find_producer(p[1], rules), " -> ", p[1])
                             rules[ruleCounter][productCounter] = rules[ruleCounter][productCounter].replace(p[1], find_producer(p[1], rules))
                         else:
                             nT = availableNonTerminals[0]
                             availableNonTerminals = availableNonTerminals.replace(nT, '')
                             rules.append([nT, p[1]])
                             nonTerminals.append(nT)
+                            if pr:
+                                print(rules[ruleCounter][0], end=' -> ')
+                                print(rules[ruleCounter][productCounter], end=' ')
+                                print("Zastepujemy: ", end='')
+                                print(rules[ruleCounter][0], end=' -> ')
+                                print(rules[ruleCounter][productCounter].replace(p[1], find_producer(p[1], rules)), end=' ')
+                                print(", gdzie: ", nT, " -> ", p[1])
                             rules[ruleCounter][productCounter] = rules[ruleCounter][productCounter].replace(p[1], find_producer(p[1], rules))
             else:
                 for symbol in p:
                     if symbol in terminals:
                         if find_producer(symbol, rules):
+                            if pr:
+                                print(rules[ruleCounter][0], end=' -> ')
+                                print(rules[ruleCounter][productCounter], end=' ')
+                                print("Zastepujemy: ", end='')
+                                print(rules[ruleCounter][0], end=' -> ')
+                                print(rules[ruleCounter][productCounter].replace(symbol, find_producer(symbol, rules)), end=' ')
+                                print(", gdzie: ", find_producer(symbol, rules), ' -> ', symbol)
                             rules[ruleCounter][productCounter] = rules[ruleCounter][productCounter].replace(symbol, find_producer(symbol, rules))
                         else:
                             nT = availableNonTerminals[0]
                             availableNonTerminals = availableNonTerminals.replace(nT, '')
                             rules.append([nT, symbol])
                             nonTerminals.append(nT)
+                            if pr:
+                                print(rules[ruleCounter][0], end=' -> ')
+                                print(rules[ruleCounter][productCounter], end=' ')
+                                print("Zastepujemy: ", end='')
+                                print(rules[ruleCounter][0], end=' -> ')
+                                print(rules[ruleCounter][productCounter].replace(symbol, nT), end=' ')
+                                print(", gdzie: ", nT, ' -> ', symbol)
                             rules[ruleCounter][productCounter] = rules[ruleCounter][productCounter].replace(symbol, nT)
                 for n in range(len(p)):
                     if n + 1 == len(p):
@@ -187,6 +264,13 @@ def chomsky(nonTerminals, terminals, productionRules):
                     else:
                         pair = rules[ruleCounter][productCounter][0] + rules[ruleCounter][productCounter][1]
                         if find_producer(pair, rules):
+                            if pr:
+                                print(rules[ruleCounter][0], end=' -> ')
+                                print(rules[ruleCounter][productCounter], end=' ')
+                                print("Zastepujemy: ", end='')
+                                print(rules[ruleCounter][0], end=' -> ')
+                                print(rules[ruleCounter][productCounter].replace(pair, find_producer(pair, rules), 1), end=' ')
+                                print(", gdzie: ", find_producer(pair, rules), " -> ", pair)
                             rules[ruleCounter][productCounter] = rules[ruleCounter][productCounter].replace(pair, find_producer(pair, rules), 1)
                             found = 1
                             break
@@ -198,6 +282,13 @@ def chomsky(nonTerminals, terminals, productionRules):
                 availableNonTerminals = availableNonTerminals.replace(nT, '')
                 nonTerminals.append(nT)
                 rules.append([nT, pair])
+                if pr:
+                    print(rules[ruleCounter][0], end=' -> ')
+                    print(rules[ruleCounter][productCounter], end=' ')
+                    print("Zastepujemy: ", end='')
+                    print(rules[ruleCounter][0], end=' -> ')
+                    print(rules[ruleCounter][productCounter].replace(pair, nT, 1), end=' ')
+                    print(", gdzie: ", nT, ' -> ', pair)
                 rules[ruleCounter][productCounter] = rules[ruleCounter][productCounter].replace(pair, nT, 1)
                 continue
 
@@ -208,8 +299,6 @@ def chomsky(nonTerminals, terminals, productionRules):
         productCounter = 0
         if len(rules) == ruleCounter:
             break
-    # TO DO change it to return statement with tuple (non-terminals, terminals, rules{})
-    #print(rules)
     result = {}
     for rule in rules:
         result[rule[0]] = tuple(rule[1:])
