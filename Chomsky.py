@@ -1,5 +1,4 @@
 #  This module implements Chomsky hierarchy syntax of a given grammar
-from main import print_production
 
 def to_list(productionRules):
     # Creates list from a given dictionary with non terminal symbol always as it's first element
@@ -106,6 +105,14 @@ def remove_useless(nonTerminals, terminals, rules, pr=True):
         else:
             prevUsed.clear()
             tmp = rules.copy()
+    for t in terminals:
+        obseleteTerminal = True
+        for rule in rules:
+            for product in rule:
+                if t in product:
+                    obseleteTerminal = False
+        if obseleteTerminal:
+            terminals.remove(t)
     if pr:
         print()
 
@@ -142,7 +149,7 @@ def try_escape(nonTerminal, terminals, rules, prevUsed):
     return False
 
 
-def remove_singles(nonTerminals, terminals, rules, lam=False):
+def remove_singles(nonTerminals, terminals, rules, lam=False, pr=False):
     # Removes single-length productions, nonTerminals: non-terminal symbols list, terminals: terminal symbols list
     # rules: all production rules as a list (first element of each list is a "producer")
     remove_useless(nonTerminals, terminals, rules)  # remove useless productions
@@ -167,6 +174,15 @@ def remove_singles(nonTerminals, terminals, rules, lam=False):
                 currentSingles.clear()
                 continue
             else:
+                if pr:
+                    print("Usuwamy: ", end='')
+                    for s in currentSingles:
+                        if s == currentSingles[0]:
+                            print(currentSingles[0], end=' -> ')
+                        elif s == currentSingles[-1]:
+                            print(s)
+                        else:
+                            print(s, end=' | ')
                 if len(currentSingles) == len(rule):
                     replaceAll = True
                     nonTerminals.remove(currentSingles[0])
@@ -182,15 +198,22 @@ def remove_singles(nonTerminals, terminals, rules, lam=False):
                             if rule3[0] == cS:
                                 for p in rule3:
                                     if p == rule3[0]:
+                                        if pr:
+                                            print("Wstawiamy do", rule[0][0], end=' -> ')
                                         continue
                                     if p not in rules[0]:
                                         rules[0].append(p)
+                                        if pr:
+                                            if p == rule3[-1]:
+                                                print(p)
+                                            else:
+                                                print(p, end=' | ')
                                 rules[0].remove(cS)
                     skip = True  # skip next part since it's already done
                 while True:
                     if skip:
                         skip = False
-                        break
+                        ruleCounter += 1
                     if len(rules) <= ruleCounter:
                         break
                     rule2 = rules[ruleCounter]  # iterate through all the rules
@@ -237,15 +260,19 @@ def remove_singles(nonTerminals, terminals, rules, lam=False):
                                             tmp = tmp.replace('^', '')
                                         if tmp not in rules[ruleCounter]:
                                             rules[ruleCounter].insert(productCounter, tmp)
+                                            if pr:
+                                                print("W", rule2[0], "zamieniamy", product, "na", tmp)
                                 if symbol == currentSingles[0]:
                                     place += 1  # used to replace symbol only an one particular position
 
                         productCounter += 1  # next product
-                    productCounter = 0
                     ruleCounter += 1  # next rules
                     if len(rules) <= ruleCounter:
                         currentSingles.clear()
                         break
+                    if pr:
+                        test = to_dic(rules)
+                        print_production(test)
         currentSingles.clear()
         if rules not in history:
             history.append(rules)
@@ -257,13 +284,27 @@ def remove_singles(nonTerminals, terminals, rules, lam=False):
     except ValueError:
         pass
     if remove_useless(nonTerminals.copy(), terminals.copy(), rules.copy(), pr=False) == -1:  # check if given grammar makes sense
-        for t in terminals:
-            rules[0].append(t)
+        for x in history:  # x - rules set in history
+            y = x[0]  # S productions from a given set
+            for e in y:  # products in S productions
+                for s in e:  # symbols in S products
+                    if s in terminals and s not in rules[0]:  # singular terminal production was deleted, but should exist
+                        rules[0].append(s)
     remove_useless(nonTerminals, terminals, rules, pr=False)
-    test = to_dic(rules)
-    print_production(test)
 
 
+def print_production(productionRules):
+    # Prints production rules
+    for x in productionRules.keys():
+        print(x, end=' -> ')
+        if type(productionRules[x]) is tuple:
+            for y in productionRules[x]:
+                if y != productionRules[x][-1]:
+                    print(y, end=' | ')
+                else:
+                    print(y)
+        else:
+            print(productionRules[x])
 
 
 
@@ -276,7 +317,8 @@ def chomsky(nonTerminals, terminals, productionRules, pr=True):
         availableNonTerminals = availableNonTerminals.replace(x, '')
     # Create list of production Rules
     rules = to_list(productionRules)
-    remove_useless(nonTerminals, terminals, rules)
+    remove_singles(nonTerminals, terminals, rules, lam=True, pr=True)
+    #  remove_useless(nonTerminals, terminals, rules)  # no longer needed, remove_singles calls it anyway
     ruleCounter = 0
     productCounter = 0
     found = 0

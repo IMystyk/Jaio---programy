@@ -1,18 +1,6 @@
 #  This program in the future will help you pass jajo exam
 import Chomsky
 
-def print_production(productionRules):
-    # Prints production rules
-    for x in productionRules.keys():
-        print(x, end=' -> ')
-        if type(productionRules[x]) is tuple:
-            for y in productionRules[x]:
-                if y != productionRules[x][-1]:
-                    print(y, end=' | ')
-                else:
-                    print(y)
-        else:
-            print(productionRules[x])
 def print_grammar(terminals, nonTerminals):
     # Prints given grammar
     print("G = <{", end='')
@@ -71,9 +59,8 @@ if __name__ == "__main__":
 
     # rules = Chomsky.to_list(productionRules)
     # Chomsky.remove_useless(nonTerminals, terminals, rules)
-    # print_production(Chomsky.to_dic(rules))
-    Chomsky.remove_singles(nonTerminals, terminals, Chomsky.to_list(productionRules))
-    print("Escaped")
+    # Chomsky.print_production(Chomsky.to_dic(rules))
+    Chomsky.remove_singles(nonTerminals, terminals, Chomsky.to_list(productionRules), pr=True)
     input()
 
     #rules = Chomsky.to_list(productionRules)
@@ -84,7 +71,7 @@ if __name__ == "__main__":
     print_production(productionRules)
     print('------Chomsky------')
     t, n, pr = Chomsky.chomsky(nonTerminals, terminals, productionRules)
-    print_production(pr)
+    Chomsky.print_production(pr)
     input()
 
     terminals = []
