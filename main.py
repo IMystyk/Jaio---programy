@@ -60,7 +60,8 @@ if __name__ == "__main__":
     # rules = Chomsky.to_list(productionRules)
     # Chomsky.remove_useless(nonTerminals, terminals, rules)
     # Chomsky.print_production(Chomsky.to_dic(rules))
-    Chomsky.remove_singles(nonTerminals, terminals, Chomsky.to_list(productionRules), pr=True)
+    #Chomsky.remove_singles(nonTerminals, terminals, Chomsky.to_list(productionRules), pr=True)
+    Chomsky.chomsky(nonTerminals, terminals, productionRules, pr=True)
     input()
 
     #rules = Chomsky.to_list(productionRules)

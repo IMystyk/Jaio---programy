@@ -317,7 +317,12 @@ def chomsky(nonTerminals, terminals, productionRules, pr=True):
         availableNonTerminals = availableNonTerminals.replace(x, '')
     # Create list of production Rules
     rules = to_list(productionRules)
+    if pr:
+        print("Usuwamy lambda produkcje (jesli jakiekolwiek istnieja)", end='')
     remove_singles(nonTerminals, terminals, rules, lam=True, pr=True)
+    if pr:
+        print("Lambda produkcje zostaly usuniete")
+        print("Przeksztalcamy do postaci chomskyego:")
     #  remove_useless(nonTerminals, terminals, rules)  # no longer needed, remove_singles calls it anyway
     ruleCounter = 0
     productCounter = 0
