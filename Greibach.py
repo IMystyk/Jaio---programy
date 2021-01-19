@@ -45,44 +45,40 @@ def greibach(nonTerminals, terminals, productionRules, pr=True):
         if len(alfas) == 0:
             betas.clear()
         else:
-            if pr:
-                print("Usuwamy produkcje zawierające wyrazy alfa w", rules[ruleCounter][0])
             for alfa in alfas:
                 rules[ruleCounter].remove(rules[ruleCounter][0] + alfa)  # remove productions with alfas
-                if pr:
-                    print("Z", rules[ruleCounter][0], end=' -> ')
-                    print("usuwamy", end=' ')
-                    if alfa == alfas[-1]:
-                        print(alfa)
-                    else:
-                        print(alfa, end=' | ')
             nT = availableNonTerminals[0]
             availableNonTerminals = availableNonTerminals.replace(nT, '')
             nonTerminals.append(nT)
-            if pr:
-                print("Dodajemy produkcje:", rules[ruleCounter][0], end=" -> ")
             for beta in betas:
-                if pr:
-                    if beta == betas[-1]:
-                        print(beta)
-                    else:
-                        print(beta, end=' | ')
                 rules[ruleCounter].append(beta + nT)  # add new production to beta productions
             newRule = [nT]  # create new production rule
-            if pr:
-                print("Dodajemy nowa regule produkcji", nT, end=' -> ')
             for alfa in alfas:
-                if pr:
-                    if alfa == alfas[-1]:
-                        print(alfa, "|", alfa + nT)
-                    else:
-                        print(alfa, "|", alfa + nT, end=" | ")
                 newRule.append(alfa)
                 newRule.append(alfa + nT)
+            if pr:
+                print("Lemat 2 dla", rules[ruleCounter][0])
+                for x in rules[ruleCounter]:
+                    if x == rules[ruleCounter][0]:
+                        print(x, end=' -> ')
+                    elif x == rules[ruleCounter][-1]:
+                        print(x)
+                    else:
+                        print(x, end=' | ')
+                for x in newRule:
+                    if x == newRule[0]:
+                        print(x, end=' -> ')
+                    elif x == newRule[-1]:
+                        print(x)
+                        print("---------------------")
+                    else:
+                        print(x, end= ' | ')
             rules.append(newRule.copy())
+            if pr:
+                print_production(to_dic(rules))
+                print("---------------------------------")
             betas.clear()
             alfas.clear()
-        print_production(to_dic(rules))
         ruleCounter += 1
         productCounter = 0
     #  Now use 1st lemma
@@ -118,7 +114,7 @@ def greibach(nonTerminals, terminals, productionRules, pr=True):
             repeat = []
             message = "W "
             message += rules[ruleCounter][0]
-            message += ' zamieniamy '
+            message += ' wstawiamy '
         while True:
             if productCounter >= len(rule):
                 break
@@ -140,8 +136,6 @@ def greibach(nonTerminals, terminals, productionRules, pr=True):
                         if product[0] not in repeat:
                             repeat.append(product[0])
                             message += product[0]
-                            message += " na "
-                            message += str(products)
                             message += " "
             else:
                 tmp.append(product)
@@ -153,9 +147,18 @@ def greibach(nonTerminals, terminals, productionRules, pr=True):
             notDone.remove(rules[ruleCounter][0])
             if pr:
                 print(message)
+                print("--------------------------------")
             print_production(to_dic(rules))
         tmp.clear()
         ruleCounter -= 1
         productCounter = 0
-    remove_useless(nonTerminals, terminals, rules)
+    if pr:
+        print()
+        print("Usuwamy reguly bezuzyteczne")
+        print("---------------------------------")
+        remove_useless(nonTerminals, terminals, rules)
+        print("---------------------------------")
+    else:
+        remove_useless(nonTerminals, terminals, rules, pr=False)
+    return nonTerminals, terminals, to_dic(rules)
 

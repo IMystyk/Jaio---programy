@@ -41,7 +41,7 @@ def read_from_file():
             if p in posTerminals and p not in terminals:
                 terminals.append(p)
     productionRules = Chomsky.to_dic(rules)
-    return (terminals, nonTerminals, productionRules)
+    return (nonTerminals, terminals, productionRules)
 
 # to check if given symbol can be terminal
 posTerminals = "0123456789^abcdefghijklmnopqrstuvwxyz"
@@ -49,9 +49,9 @@ posTerminals = "0123456789^abcdefghijklmnopqrstuvwxyz"
 if __name__ == "__main__":
 
     # Test values
-    terminals = ['x', 'y', 'z']
-    nonTerminals = ['S', 'X', 'Y', 'Z']
-    productionRules = {'S': ('SY', 'Xy', 'xZ'), 'X': ('Xx', 'z'), 'Y': ('Zy', 'Yy'), 'Z': ('y', 'Zx', 'z')}
+    # terminals = ['x', 'y', 'z']
+    # nonTerminals = ['S', 'X', 'Y', 'Z']
+    # productionRules = {'S': ('SY', 'Xy', 'xZ'), 'X': ('Xx', 'z'), 'Y': ('Zy', 'Yy'), 'Z': ('y', 'Zx', 'z')}
     # terminals = ['x', 'y']
     # nonTerminals = ['S', 'A', 'B', 'C', 'D']
     # productionRules = {'S': ('x', 'AD', 'C', 'BD'), 'C': ('y'), 'A': ('x'), 'D': ('xD')}
@@ -72,7 +72,12 @@ if __name__ == "__main__":
     #Chomsky.print_production(productionRules)
     #n, t, pr = Chomsky.chomsky(nonTerminals, terminals, productionRules, pr=False)
     #Chomsky.print_production(pr)
-    Greibach.greibach(nonTerminals, terminals, productionRules)
+    nonTerminals, terminals, productionRules = read_from_file()
+    Chomsky.print_production(productionRules)
+    n, t, pr = Chomsky.chomsky(nonTerminals.copy(), terminals.copy(), productionRules.copy(), pr=False)
+    Chomsky.print_production(pr)
+    n, t, pr = Greibach.greibach(nonTerminals.copy(), terminals.copy(), productionRules.copy())
+    Chomsky.print_production(pr)
     input()
 
     terminals = []
