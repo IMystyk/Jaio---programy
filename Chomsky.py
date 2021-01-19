@@ -342,7 +342,7 @@ def chomsky(nonTerminals, terminals, productionRules, pr=True):
                     if productCounter == len(x):
                         break
                     continue
-                else: # TO DO found non-terminal symbol as a product
+                else:
                     if pr:
                         print(rules[ruleCounter][0], end=' -> ')
                         print(rules[ruleCounter][productCounter], end=' ')

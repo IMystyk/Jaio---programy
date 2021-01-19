@@ -1,5 +1,6 @@
 #  This program in the future will help you pass jajo exam
 import Chomsky
+import Greibach
 
 def print_grammar(terminals, nonTerminals):
     # Prints given grammar
@@ -48,31 +49,30 @@ posTerminals = "0123456789^abcdefghijklmnopqrstuvwxyz"
 if __name__ == "__main__":
 
     # Test values
-    # terminals = ['x', 'y', 'z']
-    # nonTerminals = ['S', 'X', 'Y', 'Z']
-    # productionRules = {'S': ('SY', 'Xy', 'xZ'), 'X': ('Xx', 'z'), 'Y': ('Zy', 'Yy'), 'Z': ('y', 'Zx', 'z')}
+    terminals = ['x', 'y', 'z']
+    nonTerminals = ['S', 'X', 'Y', 'Z']
+    productionRules = {'S': ('SY', 'Xy', 'xZ'), 'X': ('Xx', 'z'), 'Y': ('Zy', 'Yy'), 'Z': ('y', 'Zx', 'z')}
     # terminals = ['x', 'y']
     # nonTerminals = ['S', 'A', 'B', 'C', 'D']
     # productionRules = {'S': ('x', 'AD', 'C', 'BD'), 'C': ('y'), 'A': ('x'), 'D': ('xD')}
 
-    terminals, nonTerminals, productionRules = read_from_file()
+    #terminals, nonTerminals, productionRules = read_from_file()
 
     # rules = Chomsky.to_list(productionRules)
     # Chomsky.remove_useless(nonTerminals, terminals, rules)
     # Chomsky.print_production(Chomsky.to_dic(rules))
     #Chomsky.remove_singles(nonTerminals, terminals, Chomsky.to_list(productionRules), pr=True)
-    Chomsky.chomsky(nonTerminals, terminals, productionRules, pr=True)
-    input()
+    #Chomsky.chomsky(nonTerminals, terminals, productionRules, pr=True)
 
     #rules = Chomsky.to_list(productionRules)
     #print(rules)
     #pr = Chomsky.to_dic(rules)
     #print(pr)
     #Chomsky.remove_useless(nonTerminals, terminals, rules)
-    print_production(productionRules)
-    print('------Chomsky------')
-    t, n, pr = Chomsky.chomsky(nonTerminals, terminals, productionRules)
-    Chomsky.print_production(pr)
+    #Chomsky.print_production(productionRules)
+    #n, t, pr = Chomsky.chomsky(nonTerminals, terminals, productionRules, pr=False)
+    #Chomsky.print_production(pr)
+    Greibach.greibach(nonTerminals, terminals, productionRules)
     input()
 
     terminals = []
