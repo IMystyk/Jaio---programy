@@ -1,6 +1,7 @@
 #  This program in the future will help you pass jajo exam
 import Chomsky
 import Greibach
+import Regular
 
 def print_grammar(terminals, nonTerminals):
     # Prints given grammar
@@ -20,6 +21,7 @@ def print_grammar(terminals, nonTerminals):
 
 def read_from_file():
     # Reads production rules from a file
+    posTerminals = "0123456789^abcdefghijklmnopqrstuvwxyz"
     terminals = []
     nonTerminals = []
     productionRules = {}
@@ -38,8 +40,9 @@ def read_from_file():
         data.clear()
     for x in rules:
         for p in x:
-            if p in posTerminals and p not in terminals:
-                terminals.append(p)
+            for s in p:
+                if s in posTerminals and s not in terminals:
+                    terminals.append(s)
     productionRules = Chomsky.to_dic(rules)
     return (nonTerminals, terminals, productionRules)
 
@@ -73,12 +76,18 @@ if __name__ == "__main__":
     #n, t, pr = Chomsky.chomsky(nonTerminals, terminals, productionRules, pr=False)
     #Chomsky.print_production(pr)
     nonTerminals, terminals, productionRules = read_from_file()
-    Chomsky.print_production(productionRules)
-    n, t, pr = Chomsky.chomsky(nonTerminals.copy(), terminals.copy(), productionRules.copy(), pr=False)
-    Chomsky.print_production(pr)
-    n, t, pr = Greibach.greibach(nonTerminals.copy(), terminals.copy(), productionRules.copy())
-    Chomsky.print_production(pr)
+    Regular.to_deterministic(nonTerminals, terminals, productionRules)
+    #Regular.to_deterministic(nonTerminals, terminals, productionRules)
+#    nonTerminals, terminals, productionRules = Regular.to_complete(nonTerminals.copy(), terminals.copy(), productionRules.copy())
+    #Chomsky.print_production(productionRules)
     input()
+
+    # Chomsky.print_production(productionRules)
+    # n, t, pr = Chomsky.chomsky(nonTerminals.copy(), terminals.copy(), productionRules.copy(), pr=False)
+    # Chomsky.print_production(pr)
+    # n, t, pr = Greibach.greibach(nonTerminals.copy(), terminals.copy(), productionRules.copy())
+    # Chomsky.print_production(pr)
+    # input()
 
     terminals = []
     nonTerminals = []

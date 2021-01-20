@@ -2,6 +2,7 @@
 
 from Chomsky import *
 
+
 def find_productions(nonTerminal, rules):
     #  Returns list of products produced by given non-terminal symbol
     products = []
@@ -12,13 +13,15 @@ def find_productions(nonTerminal, rules):
                     continue
                 products.append(product)
     return products
+
+
 def greibach(nonTerminals, terminals, productionRules, pr=True):
     # This function transforms given grammar, nonTerminals: non-terminal symbols list, terminals: terminal symbols list
     # productionRules: dictionary with production rules, pr:checks if user wants an output printed (default - True)
     nonTerminals, terminals, productionRules = chomsky(nonTerminals, terminals, productionRules, pr=False) # transform
     # given grammar to The Chomsky hierarchy (because that's how the programmer decided to proceed)
     rules = to_list(productionRules) # create list out of a dictionary (first element in each list is a key from ditionary)
-    availableNonTerminals = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" # list af all possible symbols that can be non-terminal symbols
+    availableNonTerminals = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"  # list af all possible symbols that can be non-terminal symbols
     for x in nonTerminals:
         availableNonTerminals = availableNonTerminals.replace(x, '') # Check which symbols are already in use and remove them
     alfas = []  # list to store alfas

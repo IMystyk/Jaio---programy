@@ -16,6 +16,7 @@ def to_list(productionRules):
         current.clear()
     return result
 
+
 def to_dic(rules):
     # Creates dictionary from a given list of production rules
     result = {}
@@ -23,14 +24,16 @@ def to_dic(rules):
         result[rule[0]] = tuple(rule[1:])
     return result
 
+
 def find_producer(symbol, rules):
-    # Finds non-terminal symbol that produces given symbol
+    # Finds non-terminal symbol that produces only given symbol
     # If no such production is found returns 0
     for x in rules:
         if len(x) == 2:
             if x[1] == symbol:
                 return x[0]
     return 0
+
 
 def remove_useless(nonTerminals, terminals, rules, pr=True):
     # Checks if any production rules are useless and deletes them (and non-terminal symbols) if any are found
