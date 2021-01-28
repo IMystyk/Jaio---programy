@@ -1,4 +1,4 @@
-#  This module implements Chomsky hierarchy syntax of a given grammar
+#  This module implements Chomsky's syntax of a given grammar
 
 def to_list(productionRules):
     # Creates list from a given dictionary with non terminal symbol always as it's first element
@@ -138,7 +138,7 @@ def try_escape(nonTerminal, terminals, rules, prevUsed):
                             oneResult.append(True)
                         elif symbol == nonTerminal:
                             oneResult.append(False)
-                        elif symbol not in prevUsed:
+                        elif symbol not in prevUsed or prevUsed.count(symbol) < 10:
                             prevUsed.append(symbol)
                             oneResult.append(try_escape(symbol, terminals, rules, prevUsed.copy()))
                     results.append(oneResult.copy())
@@ -313,7 +313,7 @@ def print_production(productionRules):
 
 
 def chomsky(nonTerminals, terminals, productionRules, pr=True):
-    # Transforms grammar with given production rules to Chomsky hierarchy
+    # Transforms grammar with given production rules to Chomsky's form
     availableNonTerminals = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     # Check which non-terminal symbols are really available
     for x in nonTerminals:
@@ -516,6 +516,9 @@ def chomsky(nonTerminals, terminals, productionRules, pr=True):
         productCounter = 0
         if len(rules) == ruleCounter:
             break
+    if pr:
+        print_production(to_dic(rules))
+        print("Usuwamy wyrazy niepotrzebne (jesli jakies istnieja)")
     remove_useless(nonTerminals, terminals, rules)
     result = {}
     for rule in rules:
