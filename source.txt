@@ -1,0 +1,3 @@
+A -> aA | bB
+B -> aA | bD
+D -> ^

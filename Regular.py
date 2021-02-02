@@ -72,13 +72,13 @@ def replace_finals(nonTerminals, terminals, rules, pr=True):
 
 def to_deterministic(nonTerminals, terminals, productionRules, pr=True):
     #  Transforms given regular grammar to deterministic form
+    rules = to_list(productionRules)
+    remove_useless(nonTerminals, terminals, rules)
     if not check_regular(nonTerminals, terminals, productionRules):  # check if given grammar is even regular
         print("Podana gramatyka nie jest gramatyka regularna")
         return nonTerminals, terminals, productionRules
-    rules = to_list(productionRules)
     replace_finals(nonTerminals, terminals, rules)
     fixprint = []  # cuz print doesn't work properly
-    #  TODO add print
     if pr:
         print("Tworzymy nowe symbole terminalne, ktore reprezentuja grupy poprzednich symboli")
     newNonTerminals = []
@@ -98,11 +98,13 @@ def to_deterministic(nonTerminals, terminals, productionRules, pr=True):
     newNonTerminals.append(nT)
     fixprint.append([nT, rules[0][0]])
     newNames = []  # new non-terminals producing old non-terminals
+    newNames.append([nT, [rules[0][0]]])
     for product in rules[0]:  # prepare first productions
         if product == rules[0][0]:
             continue
         elif product == '^':  # if lambda production found add it
             newProductions[0].append(product)
+            continue
         routes[product[0]].append(product[1])
     for key in routes.keys():
         products = routes[key]
@@ -114,7 +116,7 @@ def to_deterministic(nonTerminals, terminals, productionRules, pr=True):
             nT = availableNonTerminals[0]
             availableNonTerminals = availableNonTerminals.replace(nT, '')
             newProductions[0].append(key + nT)
-            newNames.append([nT, [rules[0][0]]])
+            newNames.append([nT, routes[key].copy()])
             fixprint.append([nT])
             for x in products:
                 fixprint[-1].append(x)
@@ -122,7 +124,7 @@ def to_deterministic(nonTerminals, terminals, productionRules, pr=True):
             newNonTerminals.append(nT)
             queue.append([nT, routes[key].copy()])
         routes[key].clear()
-    counter = 0
+    counter = len(newProductions) - 2
     while True:
         try:
             newRule = queue.popleft()  # pick first element from the queue
@@ -167,7 +169,7 @@ def to_deterministic(nonTerminals, terminals, productionRules, pr=True):
                     print(product, end=', ')
         counter = 0
         for rule in newNames:
-            if counter < len(fixprint) - 1:
+            if counter < len(fixprint):
                 counter += 1
                 continue
             for product in rule:
@@ -187,16 +189,13 @@ def to_deterministic(nonTerminals, terminals, productionRules, pr=True):
     return newNonTerminals, terminals, to_dic(newProductions)
 
 
-
-
-
-
 def to_complete(nonTerminals, terminals, productionRules, pr=True):
     #  Transforms given regular grammar to complete form (if it's even called complete)
+    rules = to_list(productionRules)
+    remove_useless(nonTerminals, terminals, rules)
     if not check_regular(nonTerminals, terminals, productionRules):  # check if given grammar is even regular
         print("Podana gramatyka nie jest gramatyka regularna")
         return nonTerminals, terminals, productionRules
-    rules = to_list(productionRules)
     replace_finals(nonTerminals, terminals, rules)
     availableNonTerminals = "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
     for nT in nonTerminals:

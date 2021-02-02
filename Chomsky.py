@@ -57,7 +57,7 @@ def remove_useless(nonTerminals, terminals, rules, pr=True):
                 produced = 1
             for rule in rules:
                 for product in rule:
-                    if product == rule[0]:
+                    if nT == rule[0]:
                         continue
                     else:
                         if nT in product:
@@ -138,15 +138,16 @@ def try_escape(nonTerminal, terminals, rules, prevUsed):
                             oneResult.append(True)
                         elif symbol == nonTerminal:
                             oneResult.append(False)
-                        elif symbol not in prevUsed or prevUsed.count(symbol) < 10:
+                        elif symbol not in prevUsed or prevUsed.count(symbol) < 5:
                             prevUsed.append(symbol)
                             oneResult.append(try_escape(symbol, terminals, rules, prevUsed.copy()))
                     results.append(oneResult.copy())
                     oneResult.clear()
-    escape = False
     for res in results:
+        escape = True
         for x in res:
-            escape = x
+            if not x:
+                escape = False
         if escape:
             return True
     return False
@@ -155,8 +156,14 @@ def try_escape(nonTerminal, terminals, rules, prevUsed):
 def remove_singles(nonTerminals, terminals, rules, lam=False, pr=False):
     # Removes single-length productions, nonTerminals: non-terminal symbols list, terminals: terminal symbols list
     # rules: all production rules as a list (first element of each list is a "producer")
+    if pr:
+        print("Usuwamy symbole bezuzyteczne (jesli jakies istnieja)")
     remove_useless(nonTerminals, terminals, rules)  # remove useless productions
+    if pr:
+        print("Usuwamy lambda produkcje (jesli jakiekolwiek istnieja)")
     currentSingles = []  # productions of a single symbol from the current rule
+    if pr:
+        print()
     replaceAll = False  # marks that there will be no productions of given non-Terminal left
     history = []  # stores previous versions of production rules, prevents infinite loops
     skip = False
@@ -276,6 +283,7 @@ def remove_singles(nonTerminals, terminals, rules, lam=False, pr=False):
                     if pr:
                         test = to_dic(rules)
                         print_production(test)
+                        print("--------------")
         currentSingles.clear()
         if rules not in history:
             history.append(rules)
@@ -294,6 +302,10 @@ def remove_singles(nonTerminals, terminals, rules, lam=False, pr=False):
                     if s in terminals and s not in rules[0]:  # singular terminal production was deleted, but should exist
                         rules[0].append(s)
     remove_useless(nonTerminals, terminals, rules, pr=False)
+    if pr:
+        test = to_dic(rules)
+        print_production(test)
+        print("--------------")
 
 
 def print_production(productionRules):
@@ -320,11 +332,10 @@ def chomsky(nonTerminals, terminals, productionRules, pr=True):
         availableNonTerminals = availableNonTerminals.replace(x, '')
     # Create list of production Rules
     rules = to_list(productionRules)
-    if pr:
-        print("Usuwamy lambda produkcje (jesli jakiekolwiek istnieja)", end='')
     remove_singles(nonTerminals, terminals, rules, lam=True, pr=True)
     if pr:
         print("Lambda produkcje zostaly usuniete")
+        print("------------------------")
         print("Przeksztalcamy do postaci chomskyego:")
     #  remove_useless(nonTerminals, terminals, rules)  # no longer needed, remove_singles calls it anyway
     ruleCounter = 0

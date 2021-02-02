@@ -2,6 +2,8 @@
 import Chomsky
 import Greibach
 import Regular
+import CFLan
+import RemoveStart
 
 def print_grammar(terminals, nonTerminals):
     # Prints given grammar
@@ -44,13 +46,46 @@ def read_from_file():
                 if s in posTerminals and s not in terminals:
                     terminals.append(s)
     productionRules = Chomsky.to_dic(rules)
-    return (nonTerminals, terminals, productionRules)
+    return nonTerminals, terminals, productionRules
+
+def read_from_string(string):
+    # Reads production rules from the string
+    posTerminals = "0123456789^abcdefghijklmnopqrstuvwxyz"
+    terminals = []
+    nonTerminals = []
+    productionRules = {}
+    rules = []
+    data = string.split()
+    nextP = False
+    for x in data:
+        if x == '->':
+            nextP = True
+            continue
+        elif x == '|':
+            nextP = True
+            continue
+        elif not nextP:
+            nonTerminals.append(x)
+            rules.append([x])
+            nextP = True
+            continue
+        elif nextP:
+            for s in x:
+                if s in posTerminals and s not in terminals:
+                    terminals.append(s)
+            rules[-1].append(x)
+            nextP = False
+    productionRules = Chomsky.to_dic(rules)
+    return nonTerminals, terminals, productionRules
+
 
 # to check if given symbol can be terminal
 posTerminals = "0123456789^abcdefghijklmnopqrstuvwxyz"
 
 if __name__ == "__main__":
 
+    # testString = "S -> aS | bS | cS | 2R\nmabda -> lambd3"
+    # read_from_string(testString)
     # Test values
     # terminals = ['x', 'y', 'z']
     # nonTerminals = ['S', 'X', 'Y', 'Z']
@@ -76,10 +111,21 @@ if __name__ == "__main__":
     #n, t, pr = Chomsky.chomsky(nonTerminals, terminals, productionRules, pr=False)
     #Chomsky.print_production(pr)
     nonTerminals, terminals, productionRules = read_from_file()
-    Regular.to_deterministic(nonTerminals, terminals, productionRules)
+    RemoveStart.remove_start(nonTerminals, terminals, productionRules)
+    # Chomsky.remove_useless(nonTerminals,terminals,Chomsky.to_list(productionRules))
+    # print("Najpier na chowmkyego")
+    # n, t, pr = Chomsky.chomsky(nonTerminals.copy(), terminals.copy(), productionRules.copy())
+    # n, t, pr = Greibach.greibach(nonTerminals.copy(), terminals.copy(), productionRules.copy())
+    # Chomsky.print_production(pr)
+    # TODO CFLan.lang(nonTerminals, terminals, productionRules)
+    #Regular.to_deterministic(nonTerminals, terminals, productionRules)
     #Regular.to_deterministic(nonTerminals, terminals, productionRules)
 #    nonTerminals, terminals, productionRules = Regular.to_complete(nonTerminals.copy(), terminals.copy(), productionRules.copy())
     #Chomsky.print_production(productionRules)
+    # rule = ['ASA', 'y']
+    # replacements = ['0']
+    # target = 'A'
+    #CFLan.replace_productions(rule, replacements, target)
     input()
 
     # Chomsky.print_production(productionRules)
